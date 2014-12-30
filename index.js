@@ -205,7 +205,26 @@ exports.around = function around(latlng, radius) {
 };
 
 [
-  'StopPointName'
+  'StopPointName',
+  'StopID',
+  'StopCode1',
+  'StopCode2',
+  'StopPointType',
+  'Towards',
+  'Bearing',
+  'StopPointState',
+  'VisitNumber',
+  'LineID',
+  'LineName',
+  'DirectionID',
+  'DestinationText',
+  'DestinationName',
+  'VehicleID',
+  'TripID',
+  'RegistrationNumber',
+  'StopPointIndicator',
+  'MessageType',
+  'MessagePriority'
 ].forEach(function(k) {
   exports[camel(k)] = busFilter(k);
 });
