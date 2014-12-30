@@ -1,18 +1,18 @@
-var split  = require('split');
-var curry  = require('curry');
-var http   = require('http');
-var events = require('events');
-var extend = require('util')._extend;
-var url    = require('url');
-var Bacon  = require('bacon.model');
-var adt    = require('adt');
+var split    = require('split');
+var curry    = require('curry');
+var http     = require('http');
+var events   = require('events');
+var defaults = require('merge-defaults');
+var url      = require('url');
+var Bacon    = require('bacon.model');
+var adt      = require('adt');
+var camel    = require('camel-case');
 
 var defaultOptions = {
   host: 'countdown.api.tfl.gov.uk',
   pathname: 'interfaces/ura/instant_V1',
   protocol: 'http',
   query: {
-    Circle: '51.487671,-0.087329,200',
     ReturnList: 'StopPointName,StopID,StopCode1,StopCode2,StopPointState,StopPointType,StopPointIndicator,Towards,Bearing,Latitude,Longitude,VisitNumber,TripID,VehicleID,RegistrationNumber,LineID,LineName,DirectionID,DestinationText,DestinationName,EstimatedTime,MessageUUID,MessageText,MessageType,MessagePriority,StartTime,ExpireTime,BaseVersion',
     StopAlso: true
   }
@@ -142,7 +142,7 @@ function get(addr) {
 }
 
 function busboy(options) {
-  var addr = url.format(extend(defaultOptions, options));
+  var addr = url.format(defaults(defaultOptions, options));
   var out = new Bacon.Model({
     meta: {loading: true}
   });
@@ -188,4 +188,24 @@ function busboy(options) {
   return out;
 }
 
-module.exports = busboy;
+function busFilter(key) {
+  return function(value) {
+    var query = {};
+    query[key] = value;
+    return busboy({query: query});
+  };
+}
+
+exports.around = function around(latlng, radius) {
+  return busFilter('Circle')([
+    latlng.lat,
+    latlng.lng,
+    radius.toString()
+  ].join(','));
+};
+
+[
+  'StopPointName'
+].forEach(function(k) {
+  exports[camel(k)] = busFilter(k);
+});

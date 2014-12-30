@@ -23,6 +23,8 @@
   "dependencies": {
     "adt": "^0.7.2",
     "bacon.model": "^0.1.12",
+    "camel-case": "^1.0.2",
+    "merge-defaults": "^0.2.1",
     "split": "^0.3.2"
   },
   "devDependencies": {
