@@ -6,16 +6,15 @@ var url      = require('url');
 var Bacon    = require('bacon.model');
 var adt      = require('adt');
 var camel    = require('camel-case');
+var qs       = require('querystring');
 
 var defaultOptions = {
   host: 'countdown.api.tfl.gov.uk',
-  pathname: 'interfaces/ura/instant_V1',
-  protocol: 'http',
+  path: '/interfaces/ura/instant_V1',
   query: {
     ReturnList: 'StopPointName,StopID,StopCode1,StopCode2,StopPointState,StopPointType,StopPointIndicator,Towards,Bearing,Latitude,Longitude,VisitNumber,TripID,VehicleID,RegistrationNumber,LineID,LineName,DirectionID,DestinationText,DestinationName,EstimatedTime,MessageUUID,MessageText,MessageType,MessagePriority,StartTime,ExpireTime,BaseVersion',
     StopAlso: true
   },
-  method: 'GET',
   withCredentials: false
 };
 
@@ -120,8 +119,9 @@ function is(klass) {
 function get(options) {
   var data = new Bacon.Bus();
 
-  http.request(options, function(res) {
+  options.path = options.path + '?' + qs.stringify(options.query);
 
+  var req = http.request(options, function(res) {
     data.plug(Bacon.fromEventTarget(
       res.pipe(split()),
       'data'
@@ -134,10 +134,16 @@ function get(options) {
       }
     }));
 
+    if(res.statusCode !== 200) {
+      data.error(new Error(http.STATUS_CODES[res.statusCode]));
+    }
+
     res.on('end', function() {
       data.end();
     });
   });
+
+  req.end();
 
   return data;
 }
