@@ -146,6 +146,15 @@ function busboy(options) {
         prediction.visitNumber + '_' + prediction.vehicleId
       ].join('.')).bind(model);
     });
+
+    data.filter(is(FlexibleMessage)).onValue(function(message) {
+      var model = new Bacon.Model(message.toJSON());
+      out.lens([
+        message.stopId,
+        'messages',
+        message.messageUUID
+      ].join('.')).bind(model);
+    });
   });
 
   return out;
