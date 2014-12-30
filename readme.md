@@ -1,6 +1,10 @@
-<h1 align="center"><img src="https://raw.githubusercontent.com/quarterto/node-busboy/master/logo.png?1" alt="BUSBOY" width="257"></h1>
+<h1 align="center"><img src="https://raw.githubusercontent.com/quarterto/node-busboy/master/logo.png?2" alt="TfL-BUSBOY" width="382"></h1>
 
 Nice event stream wrapper for the byzantine TfL Bus Departures API.
+
+```
+npm install tfl-busboy
+```
 
 ## The what
 

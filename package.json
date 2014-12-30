@@ -1,5 +1,5 @@
 {
-  "name": "busboy",
+  "name": "tfl-busboy",
   "version": "1.0.0",
   "description": "Get TfL bus predictions",
   "main": "index.js",
