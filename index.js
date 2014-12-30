@@ -164,6 +164,15 @@ function busboy(options) {
       ].join('.')).bind(model);
     });
 
+    data.filter(is(BaseVersion)).onValue(function(version) {
+      out.lens('meta.baseVersion').set(version.version);
+    });
+
+    data.filter(is(URAVersion)).onValue(function(version) {
+      out.lens('meta.uraVersion').set(version.version);
+      out.lens('meta.uraTimestamp').set(version.timeStamp);
+    });
+
     data.onEnd(function() {
       out.lens('meta.loading').set(false);
     });
