@@ -14,7 +14,9 @@ var defaultOptions = {
   query: {
     ReturnList: 'StopPointName,StopID,StopCode1,StopCode2,StopPointState,StopPointType,StopPointIndicator,Towards,Bearing,Latitude,Longitude,VisitNumber,TripID,VehicleID,RegistrationNumber,LineID,LineName,DirectionID,DestinationText,DestinationName,EstimatedTime,MessageUUID,MessageText,MessageType,MessagePriority,StartTime,ExpireTime,BaseVersion',
     StopAlso: true
-  }
+  },
+  method: 'GET',
+  withCredentials: false
 };
 
 function onlyCoerce(coerce, e) {
@@ -115,10 +117,10 @@ function is(klass) {
   return klass.hasInstance.bind(klass);
 }
 
-function get(addr) {
+function get(options) {
   var data = new Bacon.Bus();
 
-  http.get(addr, function(res) {
+  http.request(options, function(res) {
 
     data.plug(Bacon.fromEventTarget(
       res.pipe(split()),
@@ -141,12 +143,11 @@ function get(addr) {
 }
 
 function busboy(options) {
-  var addr = url.format(defaults(defaultOptions, options));
   var out = new Bacon.Model({
     meta: {loading: true}
   });
 
-  var data = get(addr);
+  var data = get(defaults(defaultOptions, options));
 
   data.filter(is(Stop)).onValue(function(stop) {
     var model = new Bacon.Model(stop.toJSON());
