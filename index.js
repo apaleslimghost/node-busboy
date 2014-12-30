@@ -13,7 +13,8 @@ var defaultOptions = {
   protocol: 'http',
   query: {
     Circle: '51.487671,-0.087329,200',
-    ReturnList: 'StopPointName,StopID,StopCode1,StopCode2,StopPointState,StopPointType,StopPointIndicator,Towards,Bearing,Latitude,Longitude,VisitNumber,TripID,VehicleID,RegistrationNumber,LineID,LineName,DirectionID,DestinationText,DestinationName,EstimatedTime,MessageUUID,MessageText,MessageType,MessagePriority,StartTime,ExpireTime,BaseVersion'
+    ReturnList: 'StopPointName,StopID,StopCode1,StopCode2,StopPointState,StopPointType,StopPointIndicator,Towards,Bearing,Latitude,Longitude,VisitNumber,TripID,VehicleID,RegistrationNumber,LineID,LineName,DirectionID,DestinationText,DestinationName,EstimatedTime,MessageUUID,MessageText,MessageType,MessagePriority,StartTime,ExpireTime,BaseVersion',
+    StopAlso: true
   }
 };
 
@@ -111,11 +112,13 @@ var types = {
   4: URAVersion
 };
 
+var isStop = Stop.hasInstance.bind(Stop);
+
 function busboy(options) {
   var addr = url.format(extend(defaultOptions, options));
-  console.log(addr);
+  var out = new Bacon.Model({});
+
   http.get(addr, function(res) {
-    var out = new Bacon.Model({});
     var data = Bacon.fromEventTarget(
       res.pipe(split()),
       'data'
@@ -126,10 +129,15 @@ function busboy(options) {
       } catch(e) {
         return new Bacon.Error(e);
       }
-    }).log();
+    });
 
-    return out;
+    data.filter(isStop).onValue(function(stop) {
+      var model = new Bacon.Model(stop);
+      out.lens(stop.stopId).bind(model);
+    });
   });
+
+  return out;
 }
 
 module.exports = busboy;
