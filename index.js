@@ -1,5 +1,4 @@
 var split    = require('split');
-var curry    = require('curry');
 var http     = require('http');
 var events   = require('events');
 var defaults = require('merge-defaults');
