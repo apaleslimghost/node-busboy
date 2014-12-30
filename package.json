@@ -1,6 +1,6 @@
 {
   "name": "tfl-busboy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Get TfL bus predictions",
   "main": "index.js",
   "scripts": {
