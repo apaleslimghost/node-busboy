@@ -118,10 +118,14 @@ function is(klass) {
 
 function busboy(options) {
   var addr = url.format(extend(defaultOptions, options));
-  var out = new Bacon.Model({});
+  var out = new Bacon.Model({
+    meta: {loading: true}
+  });
 
   http.get(addr, function(res) {
-    var data = Bacon.fromEventTarget(
+    var data = new Bacon.Bus();
+
+    data.plug(Bacon.fromEventTarget(
       res.pipe(split()),
       'data'
     ).flatMap(function(data) {
@@ -131,6 +135,10 @@ function busboy(options) {
       } catch(e) {
         return new Bacon.Error(e);
       }
+    }));
+
+    res.on('end', function() {
+      data.end();
     });
 
     data.filter(is(Stop)).onValue(function(stop) {
@@ -154,6 +162,10 @@ function busboy(options) {
         'messages',
         message.messageUUID
       ].join('.')).bind(model);
+    });
+
+    data.onEnd(function() {
+      out.lens('meta.loading').set(false);
     });
   });
 
