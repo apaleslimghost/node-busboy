@@ -112,7 +112,9 @@ var types = {
   4: URAVersion
 };
 
-var isStop = Stop.hasInstance.bind(Stop);
+function is(klass) {
+  return klass.hasInstance.bind(klass);
+}
 
 function busboy(options) {
   var addr = url.format(extend(defaultOptions, options));
@@ -131,9 +133,18 @@ function busboy(options) {
       }
     });
 
-    data.filter(isStop).onValue(function(stop) {
-      var model = new Bacon.Model(stop);
+    data.filter(is(Stop)).onValue(function(stop) {
+      var model = new Bacon.Model(stop.toJSON());
       out.lens(stop.stopId).bind(model);
+    });
+
+    data.filter(is(Prediction)).onValue(function(prediction) {
+      var model = new Bacon.Model(prediction.toJSON());
+      out.lens([
+        prediction.stopId,
+        'predictions',
+        prediction.visitNumber + '_' + prediction.vehicleId
+      ].join('.')).bind(model);
     });
   });
 
