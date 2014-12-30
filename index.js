@@ -188,11 +188,17 @@ function busboy(options) {
   return out;
 }
 
+exports.withOptions = busboy;
+
+exports.query = function(q) {
+  return busboy({query: q});
+};
+
 function busFilter(key) {
   return function(value) {
     var query = {};
     query[key] = value;
-    return busboy({query: query});
+    return exports.query(query);
   };
 }
 
