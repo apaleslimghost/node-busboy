@@ -1,12 +1,12 @@
-var split    = require('split');
-var http     = require('http');
-var events   = require('events');
-var defaults = require('merge-defaults');
-var url      = require('url');
-var Bacon    = require('bacon.model');
-var adt      = require('adt');
-var camel    = require('camel-case');
-var qs       = require('querystring');
+var split  = require('split');
+var http   = require('http');
+var events = require('events');
+var merge  = require('deepmerge');
+var url    = require('url');
+var Bacon  = require('bacon.model');
+var adt    = require('adt');
+var camel  = require('camel-case');
+var qs     = require('querystring');
 
 var defaultOptions = {
   host: 'countdown.api.tfl.gov.uk',
@@ -153,7 +153,7 @@ function busboy(options) {
     meta: {loading: true}
   });
 
-  var data = get(defaults(defaultOptions, options));
+  var data = get(merge(defaultOptions, options));
 
   data.filter(is(Stop)).onValue(function(stop) {
     var model = new Bacon.Model(stop.toJSON());
