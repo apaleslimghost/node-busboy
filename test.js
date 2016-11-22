@@ -60,6 +60,30 @@ exports['TfL Busboy'] = {
 		}
 	},
 
+	'around': {
+		before() {
+			this.stubs = [
+				sinon.stub(busboy, 'query')
+			];
+		},
+
+		afterEach() {
+			this.stubs.forEach(stub => stub.reset());
+		},
+
+		after() {
+			this.stubs.forEach(stub => stub.restore());
+		},
+
+		'should query with circle' () {
+			busboy.around({lat: 51, lng: 0}, 10);
+			expect(busboy.query).to.have.been.called();
+			expect(busboy.query.lastCall.args).to.deep.equal([
+				{Circle: [51, 0, 10].join()}
+			]);
+		}
+	},
+
 	'shorthand methods': {
 		before() {
 			this.stubs = [
