@@ -105,12 +105,20 @@ var URAVersion = adt.newtype('URAVersion', {
 });
 
 var types = {
-  0: Stop,
-  1: Prediction,
-  2: FlexibleMessage,
-  3: BaseVersion,
-  4: URAVersion
+ 0: Stop,
+ 1: Prediction,
+ 2: FlexibleMessage,
+ 3: BaseVersion,
+ 4: URAVersion,
+ ///////////////
+ Stop: 0,
+ Prediction: 1,
+ FlexibleMessage: 2,
+ BaseVersion: 3,
+ URAVersion: 4
 };
+
+exports.types = types;
 
 function is(klass) {
   return klass.hasInstance.bind(klass);

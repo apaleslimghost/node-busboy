@@ -30,6 +30,9 @@
   "devDependencies": {
     "@quarterto/chai": "^1.1.0",
     "async-to-gen": "^1.2.0",
+    "chai": "^3.5.0",
+    "chai-datetime": "^1.4.1",
+    "dirty-chai": "^1.2.2",
     "mocha": "^3.1.2",
     "nock": "^9.0.2"
   }
