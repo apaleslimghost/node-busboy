@@ -1,5 +1,8 @@
 const nock = require('nock');
+const sinon = require('sinon');
+const camel = require('camel-case');
 const {expect} = require('chai')
+	.use(require('sinon-chai'))
 	.use(require('chai-datetime'))
 	.use(require('dirty-chai'));
 
@@ -54,6 +57,53 @@ exports['TfL Busboy'] = {
 				expect(result).to.have.deep.property('meta.uraVersion', '1.2.3');
 				expect(result.meta.uraTimestamp).to.equalDate(date);
 			}
+		}
+	},
+
+	'shorthand methods': {
+		before() {
+			this.stubs = [
+				sinon.stub(busboy, 'query')
+			];
+		},
+
+		afterEach() {
+			this.stubs.forEach(stub => stub.reset());
+		},
+
+		after() {
+			this.stubs.forEach(stub => stub.restore());
+		},
+
+		'should be provided for a bunch of tfl things' () {
+			[
+			  'StopPointName',
+			  'StopID',
+			  'StopCode1',
+			  'StopCode2',
+			  'StopPointType',
+			  'Towards',
+			  'Bearing',
+			  'StopPointState',
+			  'VisitNumber',
+			  'LineID',
+			  'LineName',
+			  'DirectionID',
+			  'DestinationText',
+			  'DestinationName',
+			  'VehicleID',
+			  'TripID',
+			  'RegistrationNumber',
+			  'StopPointIndicator',
+			  'MessageType',
+			  'MessagePriority'
+			].forEach(key => {
+				busboy[camel(key)]('foo');
+				expect(busboy.query).to.have.been.called();
+				expect(busboy.query.lastCall.args).to.deep.equal([
+					{[key]: 'foo'}
+				]);
+			});
 		}
 	}
 };
