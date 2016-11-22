@@ -8,6 +8,7 @@ const {expect} = require('chai')
 	.use(require('chai-as-promised'))
 	.use(require('dirty-chai'));
 
+const {responseTypes} = require('./model');
 const busboy = require('./');
 
 const toLineJSON = objects => objects.map(obj => JSON.stringify(obj)).join('\n');
@@ -27,7 +28,7 @@ exports['TfL Busboy'] = {
 		this.restoreStubs = () => {
 			this.stubs.forEach(stub => stub.restore());
 			this.stubs = [];
-		}
+		};
 	},
 
 	afterEach() {
@@ -36,7 +37,7 @@ exports['TfL Busboy'] = {
 
 	query: {
 		meta: {
-			async 'should start with meta.loading true' () {
+			async 'should start with meta.loading true'() {
 				mock();
 
 				expect(
@@ -44,7 +45,7 @@ exports['TfL Busboy'] = {
 				).to.have.deep.property('meta.loading', true);
 			},
 
-			async 'should end with meta.loading false' () {
+			async 'should end with meta.loading false'() {
 				mock();
 
 				expect(
@@ -52,9 +53,9 @@ exports['TfL Busboy'] = {
 				).to.have.deep.property('meta.loading', false);
 			},
 
-			async 'should set BaseVersion message as meta.baseVersion' () {
+			async 'should set BaseVersion message as meta.baseVersion'() {
 				mock([
-					[busboy.types.BaseVersion, '1.2.3']
+					[responseTypes.BaseVersion, '1.2.3']
 				]);
 
 				expect(
@@ -62,12 +63,12 @@ exports['TfL Busboy'] = {
 				).to.have.deep.property('meta.baseVersion', '1.2.3');
 			},
 
-			async 'should set URAVersion message as meta.uraVersion/Timestamp' () {
+			async 'should set URAVersion message as meta.uraVersion/Timestamp'() {
 				const timestamp = 1234567890;
 				const date = new Date(timestamp);
 
 				mock([
-					[busboy.types.URAVersion, '1.2.3', timestamp.toString()]
+					[responseTypes.URAVersion, '1.2.3', timestamp.toString()]
 				]);
 
 				const result = await baconToPromise(busboy.query({}));
@@ -77,10 +78,10 @@ exports['TfL Busboy'] = {
 			}
 		},
 
-		async 'should return stops by id with properties' () {
+		async 'should return stops by id with properties'() {
 			mock([
 				[
-					busboy.types.Stop,
+					responseTypes.Stop,
 					'point name',
 					'stop id',
 					'stop code 1',
@@ -91,7 +92,7 @@ exports['TfL Busboy'] = {
 					'point indicator',
 					'2',
 					'51.1',
-					'0.5',
+					'0.5'
 				]
 			]);
 
@@ -115,13 +116,13 @@ exports['TfL Busboy'] = {
 			});
 		},
 
-		async 'should attach predictions to stops' () {
+		async 'should attach predictions to stops'() {
 			const estimatedTime = new Date(1479835491539);
 			const expireTime = new Date(1479835495139);
 
 			mock([
 				[
-					busboy.types.Stop,
+					responseTypes.Stop,
 					'point name',
 					'stop id',
 					'stop code 1',
@@ -132,10 +133,10 @@ exports['TfL Busboy'] = {
 					'point indicator',
 					'2',
 					'51.1',
-					'0.5',
+					'0.5'
 				],
 				[
-					busboy.types.Prediction,
+					responseTypes.Prediction,
 					'point name',
 					'stop id',
 					'stop code 1',
@@ -221,16 +222,15 @@ exports['TfL Busboy'] = {
 			expect(
 				result['stop id'].predictions['123_1234'].expireTime
 			).to.equalDate(expireTime);
-
 		},
 
-		async 'should attach flexible messages to stops' () {
+		async 'should attach flexible messages to stops'() {
 			const startTime = new Date(1479835491539);
 			const expireTime = new Date(1479835495139);
 
 			mock([
 				[
-					busboy.types.Stop,
+					responseTypes.Stop,
 					'point name',
 					'stop id',
 					'stop code 1',
@@ -241,10 +241,10 @@ exports['TfL Busboy'] = {
 					'point indicator',
 					'2',
 					'51.1',
-					'0.5',
+					'0.5'
 				],
 				[
-					busboy.types.FlexibleMessage,
+					responseTypes.FlexibleMessage,
 					'point name',
 					'stop id',
 					'stop code 1',
@@ -295,10 +295,9 @@ exports['TfL Busboy'] = {
 			expect(
 				result['stop id'].messages['0c848424'].expireTime
 			).to.equalDate(expireTime);
-
 		},
 
-		async 'should handle http errors and extract message from html' () {
+		async 'should handle http errors and extract message from html'() {
 			mock('<h1>HTTP Status 400 - Things went wrong.</h1>', 400);
 			await expect(
 				baconToPromise(busboy.query({}))
@@ -306,7 +305,7 @@ exports['TfL Busboy'] = {
 		}
 	},
 
-	'around': {
+	around: {
 		before() {
 			this.stubs.push(
 				sinon.stub(busboy, 'query')
@@ -317,7 +316,7 @@ exports['TfL Busboy'] = {
 			this.restoreStubs();
 		},
 
-		'should query with circle' () {
+		'should query with circle'() {
 			busboy.around({lat: 51, lng: 0}, 10);
 			expect(busboy.query).to.have.been.called();
 			expect(busboy.query.lastCall.args).to.deep.equal([
@@ -337,28 +336,28 @@ exports['TfL Busboy'] = {
 			this.restoreStubs();
 		},
 
-		'should be provided for a bunch of tfl things' () {
+		'should be provided for a bunch of tfl things'() {
 			[
-			  'StopPointName',
-			  'StopID',
-			  'StopCode1',
-			  'StopCode2',
-			  'StopPointType',
-			  'Towards',
-			  'Bearing',
-			  'StopPointState',
-			  'VisitNumber',
-			  'LineID',
-			  'LineName',
-			  'DirectionID',
-			  'DestinationText',
-			  'DestinationName',
-			  'VehicleID',
-			  'TripID',
-			  'RegistrationNumber',
-			  'StopPointIndicator',
-			  'MessageType',
-			  'MessagePriority'
+				'StopPointName',
+				'StopID',
+				'StopCode1',
+				'StopCode2',
+				'StopPointType',
+				'Towards',
+				'Bearing',
+				'StopPointState',
+				'VisitNumber',
+				'LineID',
+				'LineName',
+				'DirectionID',
+				'DestinationText',
+				'DestinationName',
+				'VehicleID',
+				'TripID',
+				'RegistrationNumber',
+				'StopPointIndicator',
+				'MessageType',
+				'MessagePriority'
 			].forEach(key => {
 				busboy[camel(key)]('foo');
 				expect(busboy.query).to.have.been.called();
