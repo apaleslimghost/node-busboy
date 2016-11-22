@@ -69,6 +69,44 @@ exports['TfL Busboy'] = {
 				expect(result).to.have.deep.property('meta.uraVersion', '1.2.3');
 				expect(result.meta.uraTimestamp).to.equalDate(date);
 			}
+		},
+
+		async 'should return stops by id with properties' () {
+			mock([
+				[
+					busboy.types.Stop,
+					'point name',
+					'stop id',
+					'stop code 1',
+					'stop code 2',
+					'point type',
+					'towards',
+					'180',
+					'point indicator',
+					'2',
+					'51.1',
+					'0.5',
+				]
+			]);
+
+			const result = await busboy.query({}).toPromise();
+
+			expect(result).to.have.property('stop id');
+			expect(
+				result['stop id']
+			).to.deep.equal({
+				stopPointName: 'point name',
+				stopId: 'stop id',
+				stopCode1: 'stop code 1',
+				stopCode2: 'stop code 2',
+				stopPointType: 'point type',
+				towards: 'towards',
+				bearing: 180,
+				stopPointIndicator: 'point indicator',
+				stopPointState: 2,
+				latitude: 51.1,
+				longitude: 0.5
+			});
 		}
 	},
 
