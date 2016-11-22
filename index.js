@@ -149,23 +149,23 @@ function get(options) {
 }
 
 function busboy(options) {
-  var model = new Bacon.Model({
+  var baseModel = new Bacon.Model({
     meta: {loading: true}
   });
 
 	var out = new Bacon.Bus();
-	out.plug(model);
+	out.plug(baseModel);
 
   var data = get(merge(defaultOptions, options));
 
   data.filter(is(Stop)).onValue(function(stop) {
     var model = new Bacon.Model(stop.toJSON());
-    model.lens(stop.stopId).bind(model);
+    baseModel.lens(stop.stopId).bind(model);
   });
 
   data.filter(is(Prediction)).onValue(function(prediction) {
     var model = new Bacon.Model(prediction.toJSON());
-    model.lens([
+    baseModel.lens([
       prediction.stopId,
       'predictions',
       prediction.visitNumber + '_' + prediction.vehicleId
@@ -174,7 +174,7 @@ function busboy(options) {
 
   data.filter(is(FlexibleMessage)).onValue(function(message) {
     var model = new Bacon.Model(message.toJSON());
-    model.lens([
+    baseModel.lens([
       message.stopId,
       'messages',
       message.messageUUID
@@ -182,16 +182,16 @@ function busboy(options) {
   });
 
   data.filter(is(BaseVersion)).onValue(function(version) {
-    model.lens('meta.baseVersion').set(version.version);
+    baseModel.lens('meta.baseVersion').set(version.version);
   });
 
   data.filter(is(URAVersion)).onValue(function(version) {
-    model.lens('meta.uraVersion').set(version.version);
-    model.lens('meta.uraTimestamp').set(version.timeStamp);
+    baseModel.lens('meta.uraVersion').set(version.version);
+    baseModel.lens('meta.uraTimestamp').set(version.timeStamp);
   });
 
   data.onEnd(function() {
-    model.lens('meta.loading').set(false);
+    baseModel.lens('meta.loading').set(false);
 		out.end();
   });
 
