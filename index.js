@@ -167,12 +167,12 @@ function busboy(options) {
   var data = get(merge(defaultOptions, options));
 
   data.filter(is(Stop)).onValue(function(stop) {
-    var model = new Bacon.Model(stop.toJSON());
+    var model = new Bacon.Model(Stop.unapplyObject(stop));
     baseModel.lens(stop.stopId).bind(model);
   });
 
   data.filter(is(Prediction)).onValue(function(prediction) {
-    var model = new Bacon.Model(prediction.toJSON());
+    var model = new Bacon.Model(Prediction.unapplyObject(prediction));
     baseModel.lens([
       prediction.stopId,
       'predictions',
@@ -181,7 +181,7 @@ function busboy(options) {
   });
 
   data.filter(is(FlexibleMessage)).onValue(function(message) {
-    var model = new Bacon.Model(message.toJSON());
+    var model = new Bacon.Model(FlexibleMessage.unapplyObject(message));
     baseModel.lens([
       message.stopId,
       'messages',

@@ -107,6 +107,117 @@ exports['TfL Busboy'] = {
 				latitude: 51.1,
 				longitude: 0.5
 			});
+		},
+
+		async 'should return attach predictions to stops' () {
+			mock([
+				[
+					busboy.types.Stop,
+					'point name',
+					'stop id',
+					'stop code 1',
+					'stop code 2',
+					'point type',
+					'towards',
+					'180',
+					'point indicator',
+					'2',
+					'51.1',
+					'0.5',
+				],
+				[
+					busboy.types.Prediction,
+					'point name',
+					'stop id',
+					'stop code 1',
+					'stop code 2',
+					'point type',
+					'towards',
+					'180',
+					'point indicator',
+					'2',
+					'51.1',
+					'0.5',
+					'123',
+					'line id',
+					'line name',
+					'1',
+					'destination text',
+					'destination name',
+					'1234',
+					'12',
+					'AB66 CDE',
+					'1479835491539',
+					'1479835495139'
+				]
+			]);
+
+			const result = await busboy.query({}).toPromise();
+			const estimatedTime = new Date(1479835491539);
+			const expireTime = new Date(1479835495139);
+
+			console.log(typeof result['stop id'].predictions['123_1234'].estimatedTime);
+			console.log(result['stop id'].predictions['123_1234'].expireTime, expireTime);
+
+			expect(result).to.have.property('stop id');
+
+			expect(
+				result['stop id']
+			).to.have.deep.property('predictions.123_1234');
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.visitNumber',
+				123
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.lineID',
+				'line id'
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.lineName',
+				'line name'
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.directionId',
+				1
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.destinationText',
+				'destination text'
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.destinationName',
+				'destination name'
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.vehicleId',
+				1234
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.tripId',
+				12
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.predictions.123_1234.registrationNumber',
+				'AB66 CDE'
+			);
+
+			expect(
+				result['stop id'].predictions['123_1234'].estimatedTime
+			).to.equalDate(estimatedTime);
+
+			expect(
+				result['stop id'].predictions['123_1234'].expireTime
+			).to.equalDate(expireTime);
+
 		}
 	},
 
