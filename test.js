@@ -16,6 +16,18 @@ const mock = (response = '') => nock('http://countdown.api.tfl.gov.uk')
 	.reply(200, Array.isArray(response) ? toLineJSON(response) : response);
 
 exports['TfL Busboy'] = {
+	before() {
+		this.stubs = [];
+		this.restoreStubs = () => {
+			this.stubs.forEach(stub => stub.restore());
+			this.stubs = [];
+		}
+	},
+
+	afterEach() {
+		this.stubs.forEach(stub => stub.reset());
+	},
+
 	query: {
 		meta: {
 			async 'should start with meta.loading true' () {
@@ -62,17 +74,13 @@ exports['TfL Busboy'] = {
 
 	'around': {
 		before() {
-			this.stubs = [
+			this.stubs.push(
 				sinon.stub(busboy, 'query')
-			];
-		},
-
-		afterEach() {
-			this.stubs.forEach(stub => stub.reset());
+			);
 		},
 
 		after() {
-			this.stubs.forEach(stub => stub.restore());
+			this.restoreStubs();
 		},
 
 		'should query with circle' () {
@@ -86,17 +94,13 @@ exports['TfL Busboy'] = {
 
 	'shorthand methods': {
 		before() {
-			this.stubs = [
+			this.stubs.push(
 				sinon.stub(busboy, 'query')
-			];
-		},
-
-		afterEach() {
-			this.stubs.forEach(stub => stub.reset());
+			);
 		},
 
 		after() {
-			this.stubs.forEach(stub => stub.restore());
+			this.restoreStubs();
 		},
 
 		'should be provided for a bunch of tfl things' () {
