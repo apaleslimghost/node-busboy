@@ -1,4 +1,7 @@
-<h1 align="center"><img src="https://raw.githubusercontent.com/quarterto/node-busboy/master/logo.png?2" alt="TfL-BUSBOY" width="382"></h1>
+<h1 align="center">
+<img src="https://raw.githubusercontent.com/quarterto/node-busboy/master/logo.png?2" alt="TfL-BUSBOY" width="382"><br>
+<a href="https://travis-ci.org/quarterto/node-busboy"><img src="https://travis-ci.org/quarterto/node-busboy.svg?branch=master" alt="Build Status"></a>
+</h1>
 
 Nice event stream wrapper for the byzantine TfL Bus Departures API.
 
