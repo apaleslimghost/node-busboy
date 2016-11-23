@@ -109,7 +109,10 @@ exports['TfL Busboy'] = {
 			});
 		},
 
-		async 'should return attach predictions to stops' () {
+		async 'should attach predictions to stops' () {
+			const estimatedTime = new Date(1479835491539);
+			const expireTime = new Date(1479835495139);
+
 			mock([
 				[
 					busboy.types.Stop,
@@ -147,17 +150,12 @@ exports['TfL Busboy'] = {
 					'1234',
 					'12',
 					'AB66 CDE',
-					'1479835491539',
-					'1479835495139'
+					estimatedTime.getTime().toString(),
+					expireTime.getTime().toString()
 				]
 			]);
 
 			const result = await busboy.query({}).toPromise();
-			const estimatedTime = new Date(1479835491539);
-			const expireTime = new Date(1479835495139);
-
-			console.log(typeof result['stop id'].predictions['123_1234'].estimatedTime);
-			console.log(result['stop id'].predictions['123_1234'].expireTime, expireTime);
 
 			expect(result).to.have.property('stop id');
 
@@ -216,6 +214,80 @@ exports['TfL Busboy'] = {
 
 			expect(
 				result['stop id'].predictions['123_1234'].expireTime
+			).to.equalDate(expireTime);
+
+		},
+
+		async 'should attach flexible messages to stops' () {
+			const startTime = new Date(1479835491539);
+			const expireTime = new Date(1479835495139);
+
+			mock([
+				[
+					busboy.types.Stop,
+					'point name',
+					'stop id',
+					'stop code 1',
+					'stop code 2',
+					'point type',
+					'towards',
+					'180',
+					'point indicator',
+					'2',
+					'51.1',
+					'0.5',
+				],
+				[
+					busboy.types.FlexibleMessage,
+					'point name',
+					'stop id',
+					'stop code 1',
+					'stop code 2',
+					'point type',
+					'towards',
+					'180',
+					'point indicator',
+					'2',
+					'51.1',
+					'0.5',
+					'0c848424',
+					'1',
+					'1',
+					'message text',
+					startTime.getTime().toString(),
+					expireTime.getTime().toString()
+				]
+			]);
+
+			const result = await busboy.query({}).toPromise();
+
+			expect(result).to.have.property('stop id');
+
+			expect(
+				result['stop id']
+			).to.have.deep.property('messages.0c848424');
+
+			expect(result).to.have.deep.property(
+				'stop id.messages.0c848424.messageType',
+				1
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.messages.0c848424.messagePriority',
+				1
+			);
+
+			expect(result).to.have.deep.property(
+				'stop id.messages.0c848424.messageText',
+				'message text'
+			);
+
+			expect(
+				result['stop id'].messages['0c848424'].startTime
+			).to.equalDate(startTime);
+
+			expect(
+				result['stop id'].messages['0c848424'].expireTime
 			).to.equalDate(expireTime);
 
 		}
