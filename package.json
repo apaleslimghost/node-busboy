@@ -4,7 +4,7 @@
   "description": "Get TfL bus predictions",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -u exports --require async-to-gen/register"
+    "test": "xo && mocha -u exports --require async-to-gen/register"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/quarterto/node-busboy",
   "dependencies": {
+    "@quarterto/adt-coerce": "^1.0.0",
+    "@quarterto/date-is-invalid": "^1.0.0",
     "adt": "^0.7.2",
     "bacon.model": "^0.1.12",
     "camel-case": "^1.0.2",
@@ -29,6 +31,7 @@
     "split": "^0.3.2"
   },
   "devDependencies": {
+    "xo": "^0.17.1",
     "@quarterto/chai": "^1.1.0",
     "async-to-gen": "^1.2.0",
     "chai": "^3.5.0",
