@@ -92,7 +92,7 @@ function get(options) {
 	return data;
 }
 
-function busboy(options, overrideOptions = {}) {
+function busboy(options) {
 	const baseModel = new Bacon.Model({
 		meta: {loading: true}
 	});
@@ -102,8 +102,7 @@ function busboy(options, overrideOptions = {}) {
 
 	const data = get(merge([
 		defaultOptions,
-		options,
-		overrideOptions
+		options
 	]));
 
 	data.filter(is(Stop)).onValue(stop => {
@@ -150,43 +149,38 @@ function busboy(options, overrideOptions = {}) {
 	return out;
 }
 
-const override = options => {
-	const out = {};
-	out.withOptions = o => busboy(o, options);
-	out.query = query => busboy({query}, options);
-	const busFilter = key => value => out.query({[key]: value});
+exports.defaultOptions = defaultOptions;
+exports.withOptions = busboy;
+exports.query = query => busboy({query});
+const busFilter = key => value => exports.query({[key]: value});
 
-	out.around = (latlng, radius) => busFilter('Circle')([
-		latlng.lat,
-		latlng.lng,
-		radius.toString()
-	].join(','));
+exports.around = (latlng, radius) => busFilter('Circle')([
+	latlng.lat,
+	latlng.lng,
+	radius.toString()
+].join(','));
 
-	[
-		'StopPointName',
-		'StopID',
-		'StopCode1',
-		'StopCode2',
-		'StopPointType',
-		'Towards',
-		'Bearing',
-		'StopPointState',
-		'VisitNumber',
-		'LineID',
-		'LineName',
-		'DirectionID',
-		'DestinationText',
-		'DestinationName',
-		'VehicleID',
-		'TripID',
-		'RegistrationNumber',
-		'StopPointIndicator',
-		'MessageType',
-		'MessagePriority'
-	].forEach(k => {
-		out[camel(k)] = busFilter(k);
-	});
-};
-
-module.exports = override;
-Object.assign(module.exports, override({}));
+[
+	'StopPointName',
+	'StopID',
+	'StopCode1',
+	'StopCode2',
+	'StopPointType',
+	'Towards',
+	'Bearing',
+	'StopPointState',
+	'VisitNumber',
+	'LineID',
+	'LineName',
+	'DirectionID',
+	'DestinationText',
+	'DestinationName',
+	'VehicleID',
+	'TripID',
+	'RegistrationNumber',
+	'StopPointIndicator',
+	'MessageType',
+	'MessagePriority'
+].forEach(k => {
+	exports[camel(k)] = busFilter(k);
+});
