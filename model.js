@@ -1,12 +1,12 @@
 const adt = require('adt');
 const adtCoerce = require('@quarterto/adt-coerce');
-const dateIsValid = require('@quarterto/date-is-valid');
+const dateIsInvalid = require('@quarterto/date-is-invalid');
 
 const onlyInt = adtCoerce(parseInt, isNaN, 'an integer', 10);
 const onlyFloat = adtCoerce(parseFloat, isNaN, 'a float', 10);
 
 const toDate = input => new Date(onlyInt(input));
-const onlyDate = adtCoerce(toDate, dateIsValid, 'a date');
+const onlyDate = adtCoerce(toDate, dateIsInvalid, 'a date');
 
 exports.Stop = adt.newtype('Stop', {
 	stopPointName: adt.only(String, undefined),
