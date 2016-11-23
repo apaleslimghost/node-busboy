@@ -92,7 +92,7 @@ function get(options) {
 	return data;
 }
 
-function busboy(options) {
+function busboy(options, overrideOptions = {}) {
 	const baseModel = new Bacon.Model({
 		meta: {loading: true}
 	});
@@ -100,7 +100,11 @@ function busboy(options) {
 	const out = new Bacon.Bus();
 	out.plug(baseModel);
 
-	const data = get(merge(defaultOptions, options));
+	const data = get(merge([
+		defaultOptions,
+		options,
+		overrideOptions
+	]));
 
 	data.filter(is(Stop)).onValue(stop => {
 		const model = new Bacon.Model(Stop.unapplyObject(stop));
@@ -146,37 +150,43 @@ function busboy(options) {
 	return out;
 }
 
-exports.withOptions = busboy;
-exports.query = query => busboy({query});
-const busFilter = key => value => exports.query({[key]: value});
+const override = options => {
+	const out = {};
+	out.withOptions = o => busboy(o, options);
+	out.query = query => busboy({query}, options);
+	const busFilter = key => value => out.query({[key]: value});
 
-exports.around = (latlng, radius) => busFilter('Circle')([
-	latlng.lat,
-	latlng.lng,
-	radius.toString()
-].join(','));
+	out.around = (latlng, radius) => busFilter('Circle')([
+		latlng.lat,
+		latlng.lng,
+		radius.toString()
+	].join(','));
 
-[
-	'StopPointName',
-	'StopID',
-	'StopCode1',
-	'StopCode2',
-	'StopPointType',
-	'Towards',
-	'Bearing',
-	'StopPointState',
-	'VisitNumber',
-	'LineID',
-	'LineName',
-	'DirectionID',
-	'DestinationText',
-	'DestinationName',
-	'VehicleID',
-	'TripID',
-	'RegistrationNumber',
-	'StopPointIndicator',
-	'MessageType',
-	'MessagePriority'
-].forEach(k => {
-	exports[camel(k)] = busFilter(k);
-});
+	[
+		'StopPointName',
+		'StopID',
+		'StopCode1',
+		'StopCode2',
+		'StopPointType',
+		'Towards',
+		'Bearing',
+		'StopPointState',
+		'VisitNumber',
+		'LineID',
+		'LineName',
+		'DirectionID',
+		'DestinationText',
+		'DestinationName',
+		'VehicleID',
+		'TripID',
+		'RegistrationNumber',
+		'StopPointIndicator',
+		'MessageType',
+		'MessagePriority'
+	].forEach(k => {
+		out[camel(k)] = busFilter(k);
+	});
+};
+
+module.exports = override;
+Object.assign(module.exports, override({}));
