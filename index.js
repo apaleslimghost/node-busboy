@@ -145,13 +145,13 @@ function get(options) {
       res.pipe(split()),
       'data'
     ).flatMap(function(data) {
-      if(res.statusCode !== 200) {
-        return new Bacon.Error(
-          hterr(res.statusCode, parseErrorMessage(data))
-        );
-      }
+			try {
+	      if(res.statusCode !== 200) {
+	        return new Bacon.Error(
+	          hterr(res.statusCode, parseErrorMessage(data))
+	        );
+	      }
 
-      try {
         var parsed = JSON.parse(data);
         return types[parsed[0]].apply(null, parsed.slice(1));
       } catch(e) {
