@@ -4,16 +4,21 @@ const camel = require('camel-case');
 const {expect} = require('chai')
 	.use(require('sinon-chai'))
 	.use(require('chai-datetime'))
+	.use(require('chai-as-promised'))
 	.use(require('dirty-chai'));
 
 const busboy = require('./');
 
 const toLineJSON = objects => objects.map(obj => JSON.stringify(obj)).join('\n');
-
-const mock = (response = '') => nock('http://countdown.api.tfl.gov.uk')
+const mock = (response = '[0]', status = 200) => nock('http://countdown.api.tfl.gov.uk')
 	.get('/interfaces/ura/instant_V1')
 	.query(true)
-	.reply(200, Array.isArray(response) ? toLineJSON(response) : response);
+	.reply(status, Array.isArray(response) ? toLineJSON(response) : response);
+
+const baconToPromise = (observable, {first = false} = {}) => new Promise((resolve, reject) => {
+	observable[first ? 'first' : 'last']().onValue(resolve);
+	observable.onError(reject);
+});
 
 exports['TfL Busboy'] = {
 	before() {
@@ -34,7 +39,7 @@ exports['TfL Busboy'] = {
 				mock();
 
 				expect(
-					await busboy.query({}).firstToPromise()
+					await baconToPromise(busboy.query({}), {first: true})
 				).to.have.deep.property('meta.loading', true);
 			},
 
@@ -42,7 +47,7 @@ exports['TfL Busboy'] = {
 				mock();
 
 				expect(
-					await busboy.query({}).toPromise()
+					await baconToPromise(busboy.query({}))
 				).to.have.deep.property('meta.loading', false);
 			},
 
@@ -52,7 +57,7 @@ exports['TfL Busboy'] = {
 				]);
 
 				expect(
-					await busboy.query({}).toPromise()
+					await baconToPromise(busboy.query({}))
 				).to.have.deep.property('meta.baseVersion', '1.2.3');
 			},
 
@@ -64,7 +69,7 @@ exports['TfL Busboy'] = {
 					[busboy.types.URAVersion, '1.2.3', timestamp.toString()]
 				]);
 
-				const result = await busboy.query({}).toPromise();
+				const result = await baconToPromise(busboy.query({}));
 
 				expect(result).to.have.deep.property('meta.uraVersion', '1.2.3');
 				expect(result.meta.uraTimestamp).to.equalDate(date);
@@ -89,7 +94,7 @@ exports['TfL Busboy'] = {
 				]
 			]);
 
-			const result = await busboy.query({}).toPromise();
+			const result = await baconToPromise(busboy.query({}));
 
 			expect(result).to.have.property('stop id');
 			expect(
@@ -155,7 +160,7 @@ exports['TfL Busboy'] = {
 				]
 			]);
 
-			const result = await busboy.query({}).toPromise();
+			const result = await baconToPromise(busboy.query({}));
 
 			expect(result).to.have.property('stop id');
 
@@ -259,7 +264,7 @@ exports['TfL Busboy'] = {
 				]
 			]);
 
-			const result = await busboy.query({}).toPromise();
+			const result = await baconToPromise(busboy.query({}));
 
 			expect(result).to.have.property('stop id');
 
@@ -290,6 +295,13 @@ exports['TfL Busboy'] = {
 				result['stop id'].messages['0c848424'].expireTime
 			).to.equalDate(expireTime);
 
+		},
+
+		async 'error handling' () {
+			mock('', 400);
+			await expect(
+				baconToPromise(busboy.query({}))
+			).to.be.rejectedWith('Bad Request');
 		}
 	},
 

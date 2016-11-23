@@ -198,6 +198,10 @@ function busboy(options) {
     baseModel.lens('meta.uraTimestamp').set(version.timeStamp);
   });
 
+	data.onError(function(err) {
+		out.error(err);
+	});
+
   data.onEnd(function() {
     baseModel.lens('meta.loading').set(false);
 		out.end();
