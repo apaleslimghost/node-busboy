@@ -9,6 +9,7 @@ const httpError = require('http-errors');
 const {Stop, Prediction, FlexibleMessage, BaseVersion, URAVersion, responseTypes} = require('./model');
 
 const defaultOptions = {
+	protocol: 'http',
 	host: 'countdown.api.tfl.gov.uk',
 	path: '/interfaces/ura/instant_V1',
 	query: {
