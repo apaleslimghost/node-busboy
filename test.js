@@ -1,6 +1,7 @@
 const nock = require('nock');
 const sinon = require('sinon');
 const camel = require('camel-case');
+const {BadRequest} = require('http-errors');
 const {expect} = require('chai')
 	.use(require('sinon-chai'))
 	.use(require('chai-datetime'))
@@ -297,11 +298,11 @@ exports['TfL Busboy'] = {
 
 		},
 
-		async 'error handling' () {
-			mock('', 400);
+		async 'should handle http errors and extract message from html' () {
+			mock('<h1>HTTP Status 400 - Things went wrong.</h1>', 400);
 			await expect(
 				baconToPromise(busboy.query({}))
-			).to.be.rejectedWith('Bad Request');
+			).to.be.rejectedWith(BadRequest, 'Things went wrong');
 		}
 	},
 

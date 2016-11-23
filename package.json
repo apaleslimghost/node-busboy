@@ -25,6 +25,7 @@
     "bacon.model": "^0.1.12",
     "camel-case": "^1.0.2",
     "deepmerge": "^0.2.7",
+    "http-errors": "^1.5.1",
     "split": "^0.3.2"
   },
   "devDependencies": {

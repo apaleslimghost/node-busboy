@@ -7,6 +7,7 @@ var Bacon  = require('bacon.model');
 var adt    = require('adt');
 var camel  = require('camel-case');
 var qs     = require('querystring');
+var hterr  = require('http-errors');
 
 var defaultOptions = {
   host: 'countdown.api.tfl.gov.uk',
@@ -124,6 +125,16 @@ function is(klass) {
   return klass.hasInstance.bind(klass);
 }
 
+function parseErrorMessage(html) {
+	const [matches, message] = html.match(/<h1>HTTP Status \d+ - (.+)\.<\/h1>/) || [false];
+
+	if(matches) {
+		return message;
+	}
+
+	throw new Error(html);
+}
+
 function get(options) {
   var data = new Bacon.Bus();
 
@@ -134,6 +145,12 @@ function get(options) {
       res.pipe(split()),
       'data'
     ).flatMap(function(data) {
+      if(res.statusCode !== 200) {
+        return new Bacon.Error(
+          hterr(res.statusCode, parseErrorMessage(data))
+        );
+      }
+
       try {
         var parsed = JSON.parse(data);
         return types[parsed[0]].apply(null, parsed.slice(1));
@@ -141,10 +158,6 @@ function get(options) {
         return new Bacon.Error(e);
       }
     }));
-
-    if(res.statusCode !== 200) {
-      data.error(new Error(http.STATUS_CODES[res.statusCode]));
-    }
 
     res.on('end', function() {
       data.end();
