@@ -146,9 +146,7 @@ function busboy(options) {
 }
 
 exports.withOptions = busboy;
-
 exports.query = query => busboy({query});
-
 const busFilter = key => value => exports.query({[key]: value});
 
 exports.around = (latlng, radius) => busFilter('Circle')([
