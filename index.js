@@ -100,10 +100,10 @@ function busboy(options) {
 	const out = new Bacon.Bus();
 	out.plug(baseModel);
 
-	const data = get(merge([
+	const data = get(merge(
 		defaultOptions,
 		options
-	]));
+	));
 
 	data.filter(is(Stop)).onValue(stop => {
 		const model = new Bacon.Model(Stop.unapplyObject(stop));
